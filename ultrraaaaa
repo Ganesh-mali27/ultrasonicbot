@@ -1,0 +1,145 @@
+#include<Servo.h>
+Servo ganservo;
+const byte servostart = 72;
+
+// motordriver pins
+int IN1 = 5;
+int IN2 = 6;
+int IN3 = 9;
+int IN4 = 10;
+
+// about right & left dist
+int right_distance = 0;
+int left_distance = 0;
+
+// ultrasonic sensor pins
+float duration,  antar;
+int trigpin = 13;
+int echopin = 12;
+
+
+
+void setup() {
+ Serial.begin(9600);
+ pinMode(trigpin,OUTPUT);
+ pinMode(echopin,INPUT);
+ pinMode(IN1,OUTPUT);
+ pinMode(IN2,OUTPUT);
+ pinMode(IN3,OUTPUT);
+ pinMode(IN4,OUTPUT);
+ ganservo.attach(8);
+ //ON();
+ turnangle();
+
+}
+
+void loop() {
+ distdata() ;
+ int leftdist = 0;
+ int rightdist = 0;
+
+ if(antar<=20) {
+  digitalWrite(IN1,LOW);
+  digitalWrite(IN2,LOW);
+  digitalWrite(IN3,LOW);
+  digitalWrite(IN4,LOW);
+  Serial.println("stopped");
+  delay(500);
+  leftdist=leftdistdata();
+  Serial.println(leftdist);
+  delay(500);
+  rightdist=rightdistdata();
+  Serial.println(rightdist);
+  delay(500);
+
+  if(rightdist>=leftdist) {
+    digitalWrite(IN1,HIGH);
+    digitalWrite(IN2,LOW);
+    digitalWrite(IN3,LOW);
+    digitalWrite(IN4,HIGH);
+    delay(700);
+    digitalWrite(IN1,LOW);
+    digitalWrite(IN2,LOW);
+    digitalWrite(IN3,LOW);
+    digitalWrite(IN4,LOW);
+    Serial.println("right turn");
+  } else {
+    digitalWrite(IN1,LOW);
+    digitalWrite(IN2,HIGH);
+    digitalWrite(IN3,HIGH);
+    digitalWrite(IN4,LOW);
+    delay(700);
+    digitalWrite(IN1,LOW);
+    digitalWrite(IN2,LOW);
+    digitalWrite(IN3,LOW);
+    digitalWrite(IN4,LOW);
+    Serial.println("left turn");
+   }
+ } else {
+   digitalWrite(IN1,LOW);
+   digitalWrite(IN1,HIGH);
+   digitalWrite(IN1,LOW);
+   digitalWrite(IN1,HIGH);
+   Serial.println(" ultrabot is going forward ");
+  }
+}
+ 
+//void ON() {
+//  //ganservo.write(servostart);
+//  for(int a = 0; a < 4; a++) {
+//    ganservo.write(servostart);
+//    delay(50);
+//    ganservo.write(40);
+//    delay(50);
+//    ganservo.write(90);
+//    delay(50);
+//    ganservo.write(servostart);
+//  }
+//}
+
+void turnangle() {
+    digitalWrite(IN1,HIGH);
+    digitalWrite(IN2,LOW);
+    digitalWrite(IN3,LOW);
+    digitalWrite(IN4,HIGH);
+    delay(1000);
+    digitalWrite(IN1,LOW);
+    digitalWrite(IN2,LOW);
+    digitalWrite(IN3,LOW);
+    digitalWrite(IN4,LOW);
+    Serial.println(" firstly turn right");
+    }
+
+ int leftdistdata() {
+   ganservo.write(servostart);
+   delay(1000);
+   ganservo.write(150);
+   delay(1000);
+   left_distance=distdata();
+   ganservo.write(servostart);
+   return left_distance;
+   }
+ int rightdistdata() {
+   ganservo.write(servostart);
+   delay(1000);
+   ganservo.write(150);
+   delay(1000);
+   right_distance=distdata();
+   ganservo.write(servostart);
+   return right_distance;
+ }
+
+ int distdata () {
+  digitalWrite(trigpin,LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigpin,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigpin,LOW);
+  delayMicroseconds(2);
+
+  duration = pulseIn(echopin,HIGH);
+  antar= (duration * 0.0344) /2;
+
+  return antar;
+  
+ }
